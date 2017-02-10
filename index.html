@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Related skills</title>
+		<script>
+		var skillTree = {"name":"Apache Tomcat","children":[{"name":"Eclipse","children":[{"name":"NetBeans"},{"name":"GlassFish"},{"name":"JPA"},{"name":"JSP"},{"name":"Apache Struts"}]},{"name":"Apache Maven","children":[{"name":"Apache Ant"},{"name":"Jenkins"},{"name":"Hudson"},{"name":"SVN"},{"name":"Apache Subversion"}]},{"name":"Apache HTTP Server","children":[{"name":"Web server"},{"name":"WildFly"},{"name":"Red Hat Enterprise Linux"},{"name":"Nginx"},{"name":"MySQL"}]},{"name":"JUnit","children":[{"name":"Spring MVC"},{"name":"TestNG"},{"name":"Mockito"},{"name":"YUI"},{"name":"Selenium"}]},{"name":"Application server","children":[{"name":"IBM WebSphere"},{"name":"IBM WebSphere Application Server"},{"name":"IBM WebSphere administration"},{"name":"IBM HTTP Server"},{"name":"Web applications"}]}]};
+		var skillTrend = {"2008":"0.611688298027","2009":"0.694990458919","2007":"0.571804263717","2013":"1.0","2014":"0.990416841113","2015":"0.929698956267","2016":"0.81681292117","2012":"0.963698026353","2011":"0.890958589393","2010":"0.79543584964"};
+		var skillNews = {"status":"error","error":"Not found."};
+	</script>
+	<script src="https://use.typekit.net/kfx1lmb.js"></script>
+	<script>try{Typekit.load({ async: true });}catch(e){}</script>
+	
+
+	<style type="text/css">
+		body {
+			height: 100%;
+		}
+		body {
+		    color: #333538;
+		    font-family: "proxima-nova-soft", sans-serif
+		}
+		#piechart {
+			font-size: 0.8em;
+			list-style: none;
+			margin: 7px;
+			height: 100%;
+		}
+	</style>	
+</head>
+<body>
+
+<div id="piechart"></div>
+
+<script src="node_modules/chart.js/dist/Chart.min.js" type="text/javascript"></script>
+<script src="https://assets.dice.com/techpro/js/skills/jit-yc.js" type="text/javascript"></script>
+<script type="text/javascript" charset="utf-8">
+
+var labelType, useGradients, nativeTextSupport, animate;
+
+(function() {
+  var ua = navigator.userAgent,
+      iStuff = ua.match(/iPhone/i) || ua.match(/iPad/i),
+      typeOfCanvas = typeof HTMLCanvasElement,
+      nativeCanvasSupport = (typeOfCanvas == 'object' || typeOfCanvas == 'function'),
+      textSupport = nativeCanvasSupport 
+        && (typeof document.createElement('canvas').getContext('2d').fillText == 'function');
+  //I'm setting this based on the fact that ExCanvas provides text support for IE
+  //and that as of today iPhone/iPad current text support is lame
+  labelType = (!nativeCanvasSupport || (textSupport && !iStuff))? 'Native' : 'HTML';
+  nativeTextSupport = labelType == 'Native';
+  useGradients = nativeCanvasSupport;
+  animate = !(iStuff || !nativeCanvasSupport);
+
+  pieChar(720);
+  
+  lineChart();
+ 
+  apiNewsStories(skillNews) 
+
+})();
+
+
+graphresize();
+$(window).resize(graphresize);
+var skillArray = [], profileSkill = [];
+
+function graphresize() {
+    $('#piechart').html('');
+    $('#skillstrend').attr('height', 200);
+    $('#skillstrend').attr('width', $('#linechart')[0].offsetWidth);
+    pieChar(275);
+    lineChart();
+}
+
+function apiNewsStories(response) {
+    $('.relatedStories').hide();
+    var stotiesHTML = '';
+    if (response.status =='ok') {
+        $('.relatedStories').show();
+        stotiesHTML += '<ul class="list-inline">'
+        for(var i=0;i<response.posts.length;i++){
+        	var d = response.posts[i].date.slice(0, 10).split('-');
+            stotiesHTML += '<li>'
+                        + '<div class="contentwrap">'
+                        + '<div class="nstory_header">'
+                        + '<a href="'+response.posts[i].url+'" title="'+response.posts[i].title+'" >'+response.posts[i].title+'</a>'
+                        + '</div>'
+                        + '<div class="nstory_intro">'
+                        +  response.posts[i].author.name + "&nbsp;&nbsp;&nbsp;&nbsp; " + d[1] +'/'+ d[2] +'/'+ d[0]
+                        + '</div>'
+                        + '</div>'
+                        + '</li>'
+        }
+        stotiesHTML += '</ul>'
+    }
+
+    if (stotiesHTML == "") {
+        $('#stories-jobs').hide();
+    } else {
+        $('#stories').html(stotiesHTML);
+    }
+
+}
+
+function lineChart(){
+    var hlabels = Object.keys(skillTrend), vlabels = [];
+    hlabels.sort();	
+    for (var key in hlabels) {
+         vlabels.push(skillTrend[hlabels[key]]);
+    }
+    hlabels[hlabels.length-1] = 'Till Now';
+    var data = {labels: hlabels,datasets: [
+            {fillColor: "rgba(115,190,70,0.6)",strokeColor: "rgba(220,220,220,1)",
+            pointColor: "rgba(220,220,220,1)",
+            pointStrokeColor: "#fff",
+            pointHighlightFill: "#fff",
+            pointHighlightStroke: "rgba(151,187,205,1)",
+            data: vlabels}
+    ]};
+    var ctxOptions = {
+            scaleShowLabels:false,
+            scaleLineWidth:0.1,
+            showTooltips:false,
+            scaleShowVerticalLines: false,
+            pointDot:false,
+            scaleGridLineColor : "rgba(220,220,220,0.3)"
+     };
+    var ctx = document.getElementById("skillstrend").getContext("2d");
+	var myNewChart = new Chart(ctx).Line(data, ctxOptions);
+}
+
+function pieChar(h){ 
+        //init RGraph
+    var rgraph = new $jit.RGraph({
+        //Where to append the visualization
+        injectInto: 'piechart',
+        height:h,
+        levelDistance:170,
+        background: true,
+        //Optional: create a background canvas that plots
+        //concentric circles.
+        background: {
+          numberOfCircles: 3,
+          levelDistance: 170,
+          offset: 0,
+          CanvasStyles: {
+            strokeStyle: '#555'
+          }
+        },		 
+        //Add navigation capabilities:
+        //zooming by scrolling and panning.
+        Navigation: {
+          enable: true,
+          panning: true,
+          zooming: 10
+        },
+        //Set Node and Edge styles.
+        Node: {
+            color: '#4BC0C0'
+        },
+      
+        Edge: {
+             color: '#4BC0C0',
+            lineWidth: 2
+        } , 
+
+        onBeforeCompute: function(node){
+             console.log("centering " + node.name + "...");
+        },
+        
+		//This method is called once, on label creation.
+        onCreateLabel: function(domElement, node){
+            domElement.innerHTML = node.name;
+            domElement.onclick = function(){
+                if (node._depth <= 1) {
+                    rgraph.onClick(node.id, {
+                        onComplete: function() {
+                        	console.log("done ");
+                        }
+                     });
+                }
+                else{
+                    alert('Load new skills ...')
+                    // window.location.href="/skills/" + fixedEncodeURIComponent(node.name) + ".html";
+                }
+            };
+        },
+
+		//Change some label dom properties.
+		//This method is called each time a label is plotted.
+
+        onPlaceLabel: function(domElement, node){
+            var style = domElement.style;
+            style.cursor = 'pointer';
+            style.fontSize = "14px";
+            if (node._depth <= 1) {
+                style.color = "#FF6384";
+                style.fontWeight = 700
+            } else if(node._depth == 2){
+              style.color = "#666";
+            }
+            var left = parseInt(style.left);
+            var w = domElement.offsetWidth;
+            style.left = (left - w / 2) + 'px';
+         }
+    });
+    var count = 1;
+    //for(var i=0;i<skillTree.length;i++){
+        var cSkillTree = skillTree.children;
+        skillTree.id= count;
+        count = count+ 1;
+        for(var j=0;cSkillTree && j<cSkillTree.length;j++){
+            var ccSkillTree = cSkillTree[j].children;
+            cSkillTree[j].id= count;
+            count = count+ 1;
+            for(var k=0;ccSkillTree && k<ccSkillTree.length;k++){
+                ccSkillTree[k].id= count;
+                count = count+ 1;
+            }
+         }
+     //}
+    //load JSON data  
+    rgraph.loadJSON(skillTree);
+    rgraph.compute('end');
+    rgraph.fx.animate({
+      modes:['polar'],
+      duration: 200
+    });
+}
+var autocomplete = true;
+
+$(document).ready(function() {
+    var sN = $('#skillName').text();
+    getProfiles();
+    var found = inArrayCaseInsensitive(sN, skillArray) > -1;
+    if (found) {
+            $('#ts_Add').hide();
+            $('#ts_AddXs').hide();
+            $('#presentskills').show();
+            $('#presentskillsXs').show();
+    } else {
+        $('#ts_Add').show();
+        $('#ts_AddXs').show();
+        $('#presentskillsXs').hide();
+        $('#presentskills').hide();
+    }
+    if (autocomplete) {
+        $('input[id=s]').typeahead({
+            hint: true,
+            highlight: true,
+            minLength: 1,
+            items: 12,
+            autoSelect: false,
+            suppressEnterKeyPropagation: false,
+            suppressTabKeyPropagation: false,
+            source: function (query, process) {
+                $("#skillNotFound").hide();
+                var skillAutoAPI = '/skills/autoSuggestSkill';
+                $.getJSON(skillAutoAPI, {'skill': encodeURIComponent(query)}, function(data){
+                    var skillsArr = [];
+                    for ( var i = 0 ; i <= 11; i++) {
+                        if (data.skills[i]) {
+                            skillsArr.push(data.skills[i]);
+                        }
+                    }
+                    process(skillsArr);
+                });
+            },
+            matcher: function(item) {
+                if (this.query && this.query.length > 0)
+                    return true;
+                else
+                    return false;
+            }
+        })
+    }
+    /* Submitting search form on enter */
+    $('#s').keypress(function(e) {if(e.which == 13) {showSkill();}});
+});
+
+function showSkill(){
+    $("#skillNotFound").hide();
+    const skillCheckURL = '/skills/checkSkill';
+    var query = $('#s').val();
+    $.getJSON(skillCheckURL, {'skill': encodeURIComponent(query)}, function(result){
+        if(result.freebase && result.related_skills_tree)
+            window.location.href = '/skills/'+ fixedEncodeURIComponent(query) + '.html';
+        else
+            $("#skillNotFound").show();
+    }, function(){
+            $("#skillNotFound").show();
+    });
+}
+function fixedEncodeURIComponent (str) {
+    str=str.replace(/\//g, '&#47');
+    return encodeURIComponent(str);
+}
+var profileId = "";
+function addSkill() {
+    var peopleId = $('#pid').val();
+    if (peopleId && profileId) {
+        $('#myModal').modal('show');
+         yearSlider();
+    } else {
+        if (!peopleId) {
+            $('#skillflag').val('true');
+            clearLoginModalContent();
+            $('#applyModal').modal('show');
+        } else {
+            if ($('.top-right').html().length != 0)
+                return;
+            $('.top-right').notify ({
+                 message: { html: "You must create a profile to use this feature."},
+                 closable: false,
+                 onClosed : function(){}
+             }).show();
+        }
+}
+}
+
+function redirectToDashboard() {
+    window.location.href = '/dashboard#/profiles/'+profileId;
+}
+function addSkills() {
+    $('#loaderImg1').show();
+    $('#doneBtn').show();
+    $('#greenChkBtn').hide();
+    var profileData = {};
+    var year = $('#Year').val();
+    var sN = $('#skillName').text();
+    if (sN) {
+        getProfiles();
+        profileSkill.push({'name': sN, 'years': year, 'lastUsed': undefined});
+        profileData.peopleId = $('#pid').val();
+        profileData.skillList = profileSkill;
+        var url = "/config/dice/api.json?path=/profiles/"+profileId;
+        $.ajax({
+            type: "PUT",
+            url: url,
+            datatype: "json",
+            contentType: "application/json",
+            data: JSON.stringify(profileData)
+         })
+         .done(function(data) {
+            skillArray.push(sN);
+            $('#loaderImg1').hide();
+            $('#doneBtn').hide();
+            $('#greenChkBtn').show();
+            var hEarthEnabled = $('#hackerEarthEnabled').val();
+            if(hEarthEnabled && hEarthEnabled == "true") {
+                var mapping = $('.hackEarthSkills').val();
+                var mappingArray=mapping.split(','), showHEpop = false;
+                for(var i=0;i<mappingArray.length;i++){
+                    if(mappingArray[i].substr(0,mappingArray[i].indexOf(':')).toLowerCase() === sN.toLowerCase()){
+                        showHEpop = true;
+                        break;
+                    }
+                }
+              //hiding hackEarth test taken modal for the skills already assessed
+                if (showHEpop == true) {
+                    var peopleData = getPeopleDataHacker();
+                    if (peopleData.assessments) {
+                        for (var i = 0 ; i < peopleData.assessments.length; i++) {
+                            var assessmentIndex = inArrayCaseInsensitive(sN, peopleData.assessments[i].skill);
+                            if (assessmentIndex > -1) {
+                                showHEpop = false;
+                                break;
+                            }
+                        }
+                    }
+                }
+                $("#hSkill").html(sN);
+                setTimeout(function() {
+                    $('#myModal').modal('hide');
+                    if (showHEpop == true) {
+                        //$('#hackerEarthModal').modal('show');
+                        $('#hackerEarthModal').modal({
+                            backdrop: 'static',
+                            keyboard: false
+                        });
+                        $("#hackerEarthModal").on("hidden.bs.modal", function () {
+                            //window.location.reload(true);
+                            window.location.href = '/dashboard/assessments';
+                        });
+                    } else {
+                        window.location.reload(true);
+                    }
+                }, 2000);
+            } else {
+                setTimeout(function() {
+                    $('#myModal').modal('hide');
+                    }, 2000);
+                window.location.reload(true);
+            }
+         })
+         .fail(function(jqXHR, textStatus, errorThrown) {
+            //console.log("fail to add Skill");
+         })
+         .always(function(){});
+    } else {
+        console.log("no Skill found");
+    }
+}
+var trendingYearArr = ["0","2","4","6","8","10","12","14","16","18","20"];
+function yearSlider() {
+           $( "#TrendSkill" ).slider({value: 0, min: 0,   max: trendingYearArr.length - 1, step: 1, slide: function( event, ui ) {
+                $("#Year").val(trendingYearArr[ui.value]);
+                var limitValue = (trendingYearArr[ui.value]);
+                $(".limitSelected").removeClass("limitSelected");
+                $("."+limitValue+"years").addClass("limitSelected");
+            }
+         });
+    }
+/*function inArrayCaseInsensitive(skillName, skillArray){
+    var defaultResult = -1;
+    var result = defaultResult;
+    $.each(skillArray, function(index, value) {
+        if (result == defaultResult && value.toLowerCase() == skillName.toLowerCase()) {
+            result = index;
+        }
+    });
+    return result;
+}*/
+
+</script>
+
+</body>
+</html>
