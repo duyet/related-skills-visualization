@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Related network</title>
+    <meta name="viewport" content="user-scalable=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, minimal-ui">
+    <style type="text/css">
+    #cy {
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        left: 0;
+        top: 0;
+    }
+    body { 
+  font: 14px helvetica neue, helvetica, arial, sans-serif;
+}
+
+    </style>
+</head>
+
+<body>
+    <div id="cy"></div>
+    <script type="text/javascript" src="./node_modules/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="./node_modules/cytoscape/dist/cytoscape.min.js"></script>
+    <script type="text/javascript">
+    $(function() { // on dom ready
+
+        $('#cy').cytoscape({
+            layout: {
+                name: 'cose',
+                padding: 10,
+                randomize: true
+            },
+
+            style: cytoscape.stylesheet()
+                .selector('node')
+                .css({
+                    // 'shape': 'data(faveShape)',
+                    'width': 'mapData(weight, 40, 80, 30, 40)',
+                    'content': 'data(name)',
+                    'text-valign': 'center',
+                    'text-outline-width': 2,
+                    // 'text-outline-color': 'data(faveColor)',
+                    // 'background-color': 'data(faveColor)',
+                    'background-color': '#ea8a31',
+                    'text-outline-color': '#ea8a31',
+                    'color': '#fff'
+                })
+                .selector(':selected')
+                .css({
+                    'border-width': 1,
+                    'border-color': '#ccc'
+                })
+                .selector('edge')
+                .css({
+                    // 'curve-style': 'bezier',
+                    'curve-style': 'haystack',
+                    // 'width': 1,
+                    'opacity': 0.666,
+                    'width': 'mapData(strength, 70, 100, 2, 6)',
+                    'target-arrow-shape': 'triangle',
+                    'source-arrow-shape': 'circle',
+                    'line-color': 'data(faveColor)',
+                    // 'line-color': '#fcc694',
+                    'source-arrow-color': 'data(faveColor)',
+                    'target-arrow-color': 'data(faveColor)',
+                    'line-color': '#fcc694'
+                })
+                .selector('edge.questionable')
+                .css({
+                    'line-style': 'dotted',
+                    'target-arrow-shape': 'diamond'
+                })
+                .selector('.faded')
+                .css({
+                    'opacity': 0.25,
+                    'text-opacity': 0
+                }),
+
+            elements: {
+                nodes: [{
+                    data: {
+                        id: 'JS',
+                        name: 'JS',
+                        // weight: 65,
+                        faveColor: '#6FB1FC',
+                        faveShape: 'triangle'
+                    }
+                }, {
+                    data: {
+                        id: 'HTML5',
+                        name: 'HTML5',
+                        // weight: 45,
+                        faveColor: '#EDA1ED',
+                        faveShape: 'ellipse'
+                    }
+                }, {
+                    data: {
+                        id: 'CSS3',
+                        name: 'CSS3',
+                        faveColor: '#86B342',
+                        faveShape: 'octagon'
+                    }
+                }],
+                edges: [{
+                        data: {
+                            source: 'HTML5',
+                            target: 'CSS3',
+                            faveColor: '#6FB1FC',
+                            // strength: 90
+                        }
+                    }, {
+                        data: {
+                            source: 'HTML5',
+                            target: 'JS',
+                            faveColor: '#6FB1FC',
+                            // strength: 70
+                        }
+                   
+                    }, 
+                ]
+            },
+
+            ready: function() {
+                window.cy = this;
+
+                // giddy up
+            }
+        });
+
+    }); // on dom ready
+    </script>
+</body>
+
+</html>

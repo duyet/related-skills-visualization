@@ -1,0 +1,28 @@
+{
+  "name": "related-skills-visualization",
+  "version": "1.0.0",
+  "description": "* Demo: https://duyetdev.github.io/related-skills-visualization/index.html * Demo network skills: https://duyetdev.github.io/related-skills-visualization/network-skills.html",
+  "main": "index.js",
+  "dependencies": {
+    "cytoscape": "^2.7.14",
+    "jquery": "^3.1.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/duyetdev/related-skills-visualization.git"
+  },
+  "keywords": [
+    "duyetdev",
+    "visualization"
+  ],
+  "author": "Van-Duyet Le <me@duyetdev.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/duyetdev/related-skills-visualization/issues"
+  },
+  "homepage": "https://github.com/duyetdev/related-skills-visualization#readme"
+}
