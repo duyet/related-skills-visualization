@@ -1,8 +1,10 @@
 # skills-visualization
 
-See: https://duyetdev.github.io/skills-visualization/index.html
+* Demo: https://duyetdev.github.io/related-skills-visualization/index.html
+* Demo network skills: https://duyetdev.github.io/related-skills-visualization/network-skills.html 
 
 Data-Mine Related Tech Skills from Job descriptions: https://github.com/duyetdev/related-skills
+
 
 # How to contribute
 
