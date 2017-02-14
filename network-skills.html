@@ -25,8 +25,9 @@
     <script src="https://d3js.org/d3.v4.min.js"></script>
     <script src="https://d3js.org/d3-scale-chromatic.v0.3.js"></script>
     <script>
-    var width = 960,
-        height = 800;
+      var width = window.innerWidth,
+      height = window.innerHeight;
+
 
     var svg = d3.select("body").append("svg")
         .attr("width", width)
@@ -67,7 +68,7 @@
             .enter().append("circle")
             .attr("r", 5)
             .attr("fill", function(d) {
-                return color(d.group);
+                return color(d.id);
             })
             .call(d3.drag()
                 .on("start", dragstarted)
@@ -87,6 +88,9 @@
             .attr("dx", 6)
             .attr("dy", ".35em")
             .style("font-size", 10)
+            .attr("fill", function(d) {
+                // return color(d.id);
+            })
             .text(function(d) {
                 return d.id
             });
