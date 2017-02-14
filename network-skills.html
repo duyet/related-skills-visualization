@@ -2,134 +2,160 @@
 <html>
 
 <head>
-    <title>Related network</title>
-    <meta name="viewport" content="user-scalable=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, minimal-ui">
-    <style type="text/css">
-    #cy {
-        height: 100%;
-        width: 100%;
-        position: absolute;
-        left: 0;
-        top: 0;
+    <meta charset="utf-8">
+    <style>
+    .links line {
+        stroke: #999;
+        stroke-opacity: 0.6;
     }
-    body { 
-  font: 14px helvetica neue, helvetica, arial, sans-serif;
-}
-
+    
+    .nodes circle {
+        stroke: #fff;
+        stroke-width: 1.5px;
+    }
+    
+    .nodes text {
+        pointer-events: none;
+        font: 12px sans-serif;
+    }
     </style>
 </head>
 
 <body>
-    <div id="cy"></div>
-    <script type="text/javascript" src="./node_modules/jquery/dist/jquery.min.js"></script>
-    <script type="text/javascript" src="./node_modules/cytoscape/dist/cytoscape.min.js"></script>
-    <script type="text/javascript">
-    $(function() { // on dom ready
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="https://d3js.org/d3-scale-chromatic.v0.3.js"></script>
+    <script>
+    var width = 960,
+        height = 800;
 
-        $('#cy').cytoscape({
-            layout: {
-                name: 'cose',
-                padding: 10,
-                randomize: true
-            },
+    var svg = d3.select("body").append("svg")
+        .attr("width", width)
+        .attr("height", height);
+    var transform = d3.zoomIdentity;
 
-            style: cytoscape.stylesheet()
-                .selector('node')
-                .css({
-                    // 'shape': 'data(faveShape)',
-                    'width': 'mapData(weight, 40, 80, 30, 40)',
-                    'content': 'data(name)',
-                    'text-valign': 'center',
-                    'text-outline-width': 2,
-                    // 'text-outline-color': 'data(faveColor)',
-                    // 'background-color': 'data(faveColor)',
-                    'background-color': '#ea8a31',
-                    'text-outline-color': '#ea8a31',
-                    'color': '#fff'
+    var color = d3.scaleOrdinal(d3.schemeCategory20);
+
+    var simulation = d3.forceSimulation()
+        .force("link", d3.forceLink().id(function(d) {
+            return d.id;
+        }))
+        .force("charge", d3.forceManyBody())
+        .force("center", d3.forceCenter(width / 2, height / 2));
+
+    var link, node, labels;
+
+    svg.call(d3.zoom()
+      .scaleExtent([1 / 2, 8])
+      .on("zoom", zoomed));
+
+    d3.json("network_skills.json", function(error, graph) {
+        if (error) throw error;
+
+        link = svg.append("g")
+            .attr("class", "links")
+            .selectAll("line")
+            .data(graph.links)
+            .enter().append("line")
+            .attr("stroke-width", function(d) {
+                return Math.sqrt(d.value) * 2;
+            });
+
+        node = svg.append("g")
+            .attr("class", "nodes")
+            .selectAll("circle")
+            .data(graph.nodes)
+            .enter().append("circle")
+            .attr("r", 5)
+            .attr("fill", function(d) {
+                return color(d.group);
+            })
+            .call(d3.drag()
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended));
+
+        node.append("title")
+            .text(function(d) {
+                return d.id;
+            });
+
+        labels = svg.append("g")
+            .attr("class", "label")
+            .selectAll("text")
+            .data(graph.nodes)
+            .enter().append("text")
+            .attr("dx", 6)
+            .attr("dy", ".35em")
+            .style("font-size", 10)
+            .text(function(d) {
+                return d.id
+            });
+
+
+        simulation
+            .nodes(graph.nodes)
+            .on("tick", ticked);
+
+        simulation.force("link").links(graph.links);
+
+        function ticked() {
+            link
+                .attr("x1", function(d) {
+                    return d.source.x;
                 })
-                .selector(':selected')
-                .css({
-                    'border-width': 1,
-                    'border-color': '#ccc'
+                .attr("y1", function(d) {
+                    return d.source.y;
                 })
-                .selector('edge')
-                .css({
-                    // 'curve-style': 'bezier',
-                    'curve-style': 'haystack',
-                    // 'width': 1,
-                    'opacity': 0.666,
-                    'width': 'mapData(strength, 70, 100, 2, 6)',
-                    'target-arrow-shape': 'triangle',
-                    'source-arrow-shape': 'circle',
-                    'line-color': 'data(faveColor)',
-                    // 'line-color': '#fcc694',
-                    'source-arrow-color': 'data(faveColor)',
-                    'target-arrow-color': 'data(faveColor)',
-                    'line-color': '#fcc694'
+                .attr("x2", function(d) {
+                    return d.target.x;
                 })
-                .selector('edge.questionable')
-                .css({
-                    'line-style': 'dotted',
-                    'target-arrow-shape': 'diamond'
+                .attr("y2", function(d) {
+                    return d.target.y;
+                });
+
+            node
+                .attr("cx", function(d) {
+                    return d.x;
                 })
-                .selector('.faded')
-                .css({
-                    'opacity': 0.25,
-                    'text-opacity': 0
-                }),
+                .attr("cy", function(d) {
+                    return d.y;
+                });
 
-            elements: {
-                nodes: [{
-                    data: {
-                        id: 'JS',
-                        name: 'JS',
-                        // weight: 65,
-                        faveColor: '#6FB1FC',
-                        faveShape: 'triangle'
-                    }
-                }, {
-                    data: {
-                        id: 'HTML5',
-                        name: 'HTML5',
-                        // weight: 45,
-                        faveColor: '#EDA1ED',
-                        faveShape: 'ellipse'
-                    }
-                }, {
-                    data: {
-                        id: 'CSS3',
-                        name: 'CSS3',
-                        faveColor: '#86B342',
-                        faveShape: 'octagon'
-                    }
-                }],
-                edges: [{
-                        data: {
-                            source: 'HTML5',
-                            target: 'CSS3',
-                            faveColor: '#6FB1FC',
-                            // strength: 90
-                        }
-                    }, {
-                        data: {
-                            source: 'HTML5',
-                            target: 'JS',
-                            faveColor: '#6FB1FC',
-                            // strength: 70
-                        }
-                   
-                    }, 
-                ]
-            },
+            labels
+                .attr("x", function(d) {
+                    return d.x;
+                })
+                .attr("y", function(d) {
+                    return d.y;
+                });
 
-            ready: function() {
-                window.cy = this;
+        }
+    });
 
-                // giddy up
-            }
-        });
+    function dragstarted(d) {
+        if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+        d.fx = d.x;
+        d.fy = d.y;
+    }
 
-    }); // on dom ready
+    function dragged(d) {
+        d.fx = d3.event.x;
+        d.fy = d3.event.y;
+    }
+
+    function dragended(d) {
+        if (!d3.event.active) simulation.alphaTarget(0);
+        d.fx = null;
+        d.fy = null;
+    }
+
+    function zoomed() {
+        // container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+        node.attr("transform", d3.event.transform);
+        labels.attr("transform", d3.event.transform);
+        link.attr("transform", d3.event.transform);
+    }
+
     </script>
 </body>
 
