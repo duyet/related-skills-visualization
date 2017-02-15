@@ -6,6 +6,9 @@
 Data-Mine Related Tech Skills from Job descriptions: https://github.com/duyetdev/related-skills
 
 
+![](screencapture-duyetdev-github-io-related-skills-visualization-network-skills-html-1487174513641.png)
+
+
 # How to contribute
 
 1. Fork the project on Github
