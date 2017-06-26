@@ -2,11 +2,14 @@
 <html>
 <head>
 	<title>Related skills</title>
-		<script>
-		var skillTree = {"name":"Apache Tomcat","children":[{"name":"Eclipse","children":[{"name":"NetBeans"},{"name":"GlassFish"},{"name":"JPA"},{"name":"JSP"},{"name":"Apache Struts"}]},{"name":"Apache Maven","children":[{"name":"Apache Ant"},{"name":"Jenkins"},{"name":"Hudson"},{"name":"SVN"},{"name":"Apache Subversion"}]},{"name":"Apache HTTP Server","children":[{"name":"Web server"},{"name":"WildFly"},{"name":"Red Hat Enterprise Linux"},{"name":"Nginx"},{"name":"MySQL"}]},{"name":"JUnit","children":[{"name":"Spring MVC"},{"name":"TestNG"},{"name":"Mockito"},{"name":"YUI"},{"name":"Selenium"}]},{"name":"Application server","children":[{"name":"IBM WebSphere"},{"name":"IBM WebSphere Application Server"},{"name":"IBM WebSphere administration"},{"name":"IBM HTTP Server"},{"name":"Web applications"}]}]};
-		var skillTrend = {"2008":"0.611688298027","2009":"0.694990458919","2007":"0.571804263717","2013":"1.0","2014":"0.990416841113","2015":"0.929698956267","2016":"0.81681292117","2012":"0.963698026353","2011":"0.890958589393","2010":"0.79543584964"};
-		var skillNews = {"status":"error","error":"Not found."};
-	</script>
+    <link rel="stylesheet" type="text/css" href="./jquery.typeahead.min.css">
+    <script type="text/javascript" src="./jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="./jquery.typeahead.min.js"></script>
+	<script type="text/javascript" src="./skillTree.js"></script>
+    <script>
+    	var skillTrend = {"2008":"0.611688298027","2009":"0.694990458919","2007":"0.571804263717","2013":"1.0","2014":"0.990416841113","2015":"0.929698956267","2016":"0.81681292117","2012":"0.963698026353","2011":"0.890958589393","2010":"0.79543584964"};
+    	var skillNews = {"status":"error","error":"Not found."};
+    </script>
 	<script src="https://use.typekit.net/kfx1lmb.js"></script>
 	<script>try{Typekit.load({ async: true });}catch(e){}</script>
 	
@@ -14,6 +17,8 @@
 	<style type="text/css">
 		body {
 			height: 100%;
+            padding: 0;
+            margin: 0;
 		}
 		body {
 		    color: #333538;
@@ -32,7 +37,7 @@
 <div id="piechart"></div>
 
 <script src="node_modules/chart.js/dist/Chart.min.js" type="text/javascript"></script>
-<script src="https://assets.dice.com/techpro/js/skills/jit-yc.js" type="text/javascript"></script>
+<script src="./jit-yc.js" type="text/javascript"></script>
 <script type="text/javascript" charset="utf-8">
 
 var labelType, useGradients, nativeTextSupport, animate;
@@ -51,11 +56,18 @@ var labelType, useGradients, nativeTextSupport, animate;
   useGradients = nativeCanvasSupport;
   animate = !(iStuff || !nativeCanvasSupport);
 
-  pieChar(720);
+
+var body = document.body,
+    html = document.documentElement;
+
+    var height = Math.max( body.scrollHeight, body.offsetHeight, 
+                       html.clientHeight, html.scrollHeight, html.offsetHeight );
+
+  pieChar(height);
   
-  lineChart();
- 
-  apiNewsStories(skillNews) 
+  // lineChart();
+
+  // apiNewsStories(skillNews) 
 
 })();
 
@@ -66,10 +78,17 @@ var skillArray = [], profileSkill = [];
 
 function graphresize() {
     $('#piechart').html('');
-    $('#skillstrend').attr('height', 200);
-    $('#skillstrend').attr('width', $('#linechart')[0].offsetWidth);
-    pieChar(275);
-    lineChart();
+    // $('#skillstrend').attr('height', 200);
+    // $('#skillstrend').attr('width', $('#linechart')[0].offsetWidth);
+    
+    var body = document.body,
+    html = document.documentElement;
+
+    var height = Math.max( body.scrollHeight, body.offsetHeight, 
+                       html.clientHeight, html.scrollHeight, html.offsetHeight );
+
+    pieChar(height);
+    // lineChart();
 }
 
 function apiNewsStories(response) {
@@ -135,7 +154,10 @@ function pieChar(h){
         //Where to append the visualization
         injectInto: 'piechart',
         height:h,
-        levelDistance:170,
+        levelDistance: 170,
+        duration:200,
+        fps: 60,
+        showLabels:true,
         background: true,
         //Optional: create a background canvas that plots
         //concentric circles.
@@ -144,7 +166,7 @@ function pieChar(h){
           levelDistance: 170,
           offset: 0,
           CanvasStyles: {
-            strokeStyle: '#555'
+            strokeStyle: '#cccccc'
           }
         },		 
         //Add navigation capabilities:
@@ -152,20 +174,21 @@ function pieChar(h){
         Navigation: {
           enable: true,
           panning: true,
-          zooming: 10
+          zooming: 100
         },
         //Set Node and Edge styles.
         Node: {
-            color: '#4BC0C0'
+            color: '#4BC0C0',dim: 6  
         },
       
         Edge: {
-             color: '#4BC0C0',
+            color: '#4BC0C0',
             lineWidth: 2
         } , 
 
         onBeforeCompute: function(node){
              console.log("centering " + node.name + "...");
+             console.log("centering " + node.data + "...");  
         },
         
 		//This method is called once, on label creation.
@@ -186,34 +209,45 @@ function pieChar(h){
             };
         },
 
+        onAfterPlotLine: function(adj, x){  
+            console.log('adj', adj, x)
+        },  
+
 		//Change some label dom properties.
 		//This method is called each time a label is plotted.
 
         onPlaceLabel: function(domElement, node){
             var style = domElement.style;
             style.cursor = 'pointer';
-            style.fontSize = "14px";
+            style.fontSize = "17px";
             if (node._depth <= 1) {
                 style.color = "#FF6384";
                 style.fontWeight = 700
-            } else if(node._depth == 2){
-              style.color = "#666";
+            } else if (node._depth == 2) {
+                style.color = "#666";
             }
             var left = parseInt(style.left);
+            var top = parseInt(style.top);
             var w = domElement.offsetWidth;
             style.left = (left - w / 2) + 'px';
+            style.top = (top + 10) + 'px';
+            // domElement.attr('title', 'xxxxxxx')
+            console.log(node)
+            console.log(domElement)
+            console.log($(domElement).attr('title', '122'))
          }
     });
+
     var count = 1;
     //for(var i=0;i<skillTree.length;i++){
         var cSkillTree = skillTree.children;
-        skillTree.id= count;
-        count = count+ 1;
-        for(var j=0;cSkillTree && j<cSkillTree.length;j++){
+        skillTree.id = count;
+        count = count + 1;
+        for(var j=0; cSkillTree && j < cSkillTree.length; j++){
             var ccSkillTree = cSkillTree[j].children;
-            cSkillTree[j].id= count;
-            count = count+ 1;
-            for(var k=0;ccSkillTree && k<ccSkillTree.length;k++){
+            cSkillTree[j].id = count;
+            count = count + 1;
+            for(var k=0; ccSkillTree && k<ccSkillTree.length;k++){
                 ccSkillTree[k].id= count;
                 count = count+ 1;
             }
@@ -231,7 +265,7 @@ var autocomplete = true;
 
 $(document).ready(function() {
     var sN = $('#skillName').text();
-    getProfiles();
+    // getProfiles();
     var found = inArrayCaseInsensitive(sN, skillArray) > -1;
     if (found) {
             $('#ts_Add').hide();
@@ -278,12 +312,12 @@ $(document).ready(function() {
     $('#s').keypress(function(e) {if(e.which == 13) {showSkill();}});
 });
 
-function showSkill(){
+function showSkill() {
     $("#skillNotFound").hide();
     const skillCheckURL = '/skills/checkSkill';
     var query = $('#s').val();
     $.getJSON(skillCheckURL, {'skill': encodeURIComponent(query)}, function(result){
-        if(result.freebase && result.related_skills_tree)
+        if (result.freebase && result.related_skills_tree)
             window.location.href = '/skills/'+ fixedEncodeURIComponent(query) + '.html';
         else
             $("#skillNotFound").show();
@@ -411,7 +445,7 @@ function yearSlider() {
             }
          });
     }
-/*function inArrayCaseInsensitive(skillName, skillArray){
+function inArrayCaseInsensitive(skillName, skillArray){
     var defaultResult = -1;
     var result = defaultResult;
     $.each(skillArray, function(index, value) {
@@ -420,7 +454,7 @@ function yearSlider() {
         }
     });
     return result;
-}*/
+}
 
 </script>
 
