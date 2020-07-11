@@ -1,9 +1,9 @@
 # skills-visualization
 
-* Demo: https://duyetdev.github.io/related-skills-visualization/index.html
-* Demo network skills: https://duyetdev.github.io/related-skills-visualization/network-skills.html 
+* Demo: https://duyet.github.io/related-skills-visualization/index.html
+* Demo network skills: https://duyet.github.io/related-skills-visualization/network-skills.html 
 
-Data-Mine Related Tech Skills from Job descriptions: https://github.com/duyetdev/related-skills
+Data-Mine Related Tech Skills from Job descriptions: https://github.com/duyet/related-skills
 
 
 ![](screencapture-duyetdev-github-io-related-skills-visualization-network-skills-html-1487174513641.png)
